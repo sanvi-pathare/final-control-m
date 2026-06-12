@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from agent import build_api_catalog, llm_intent, safe_json_parse
+from agent import llm_intent, safe_json_parse
 
 BASE_DIR = Path(__file__).parent
 INTENT_REGISTRY_PATH = str(BASE_DIR / "intent_registry.yaml")
@@ -106,10 +106,19 @@ def build_chitchat_reply(apis) -> str:
 
 
 def build_help_reply(apis) -> str:
-    catalog = build_api_catalog(apis)
+    table_lines = [
+        "| Service | Description |",
+        "| :--- | :--- |"
+    ]
+    for api in apis:
+        desc = api.get("description", "").strip()
+        first_sentence = desc.split(".")[0] + "." if desc else ""
+        table_lines.append(f"| **{api['name']}** | {first_sentence} |")
+    
+    table_str = "\n".join(table_lines)
     return (
         "I can run these BMC automation APIs for you:\n\n"
-        f"{catalog}\n\n"
+        f"{table_str}\n\n"
         "Describe what you need in plain language. For example:\n"
         '- "List centralized connection profiles of type Database"\n'
         '- "Get parameters for server PROD and agent AG001"\n'
