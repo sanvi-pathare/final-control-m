@@ -9,7 +9,7 @@ class BmcChatbotWidget extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.isOpen = false;
     this.apiUrl = this.getAttribute('api-url') || '/api/chat';
-    
+
     // Manage unique session ID per browser tab session
     if (!sessionStorage.getItem('chatbot_session_id')) {
       const uniqueId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -55,7 +55,7 @@ class BmcChatbotWidget extends HTMLElement {
   updateChatState() {
     const chatBody = this.shadowRoot.getElementById('chatBody');
     const chatToggle = this.shadowRoot.getElementById('chatHeader');
-    
+
     if (this.isOpen) {
       chatBody.classList.add('open');
       chatToggle.classList.add('open');
@@ -70,9 +70,9 @@ class BmcChatbotWidget extends HTMLElement {
   setupEventListeners() {
     const chatHeader = this.shadowRoot.getElementById('chatHeader');
     const chatForm = this.shadowRoot.getElementById('chatForm');
-    
+
     chatHeader.addEventListener('click', () => this.toggleChat());
-    
+
     chatForm.addEventListener('submit', (event) => {
       event.preventDefault();
       this.handleFormSubmit();
@@ -87,7 +87,7 @@ class BmcChatbotWidget extends HTMLElement {
     // Append User Message
     this.appendMessage(text, 'user');
     inputEl.value = '';
-    
+
     // Show Typing Indicator
     this.showTypingIndicator(true);
 
@@ -114,7 +114,7 @@ class BmcChatbotWidget extends HTMLElement {
       this.showTypingIndicator(false);
       const reply = data.response || data.message || data.text || JSON.stringify(data);
       this.appendMessage(reply, 'bot');
-      
+
     } catch (error) {
       console.error('Chatbot API error:', error);
       this.showTypingIndicator(false);
@@ -134,10 +134,10 @@ class BmcChatbotWidget extends HTMLElement {
     const chatMessages = this.shadowRoot.getElementById('chatMessages');
     const messageEl = document.createElement('div');
     messageEl.className = `message ${type}`;
-    
+
     // Format response (basic markdown: bullet points, bold, bold italic)
     messageEl.innerHTML = this.formatMessageText(text);
-    
+
     chatMessages.appendChild(messageEl);
     this.scrollToBottom();
   }
@@ -163,7 +163,7 @@ class BmcChatbotWidget extends HTMLElement {
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
-    
+
     // Format bold: **text** -> <strong>text</strong>
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
@@ -249,7 +249,7 @@ class BmcChatbotWidget extends HTMLElement {
       if (!l.startsWith('<div') && !l.startsWith('<table')) {
         l = l.replace(
           /(https?:\/\/[^\s<]+)/g,
-          '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #f5851f; text-decoration: underline;">$1</a>'
+          '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #ffc080; text-decoration: underline;">$1</a>'
         );
       }
       const trimmed = l.trim();
@@ -260,7 +260,7 @@ class BmcChatbotWidget extends HTMLElement {
           inList = false;
           suffix = '</ul>';
         }
-        return suffix + l;
+        return suffix + line;
       }
 
       if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
@@ -285,14 +285,14 @@ class BmcChatbotWidget extends HTMLElement {
           inList = false;
           suffix = '</ul>';
         }
-        return suffix + (trimmed ? `<p>${l}</p>` : '<br>');
+        return suffix + (trimmed ? `<p>${line}</p>` : '<br>');
       }
     });
 
     if (inList) {
       finalLines.push('</ul>');
     }
-    
+
     return finalLines.join('');
   }
 
@@ -327,21 +327,21 @@ class BmcChatbotWidget extends HTMLElement {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border: 1px solid rgba(255, 255, 255, 0.22);
+          border: 1px solid rgba(16, 42, 67, 0.15); /* Soft dark border */
           padding: 16px 20px;
           border-radius: 24px;
-          background: rgba(255, 255, 255, 0.08);
-          color: #ffffff;
+          background: rgba(255, 255, 255, 0.25); /* More opaque glass background */
+          color: #102a43; /* Dark blue text */
           cursor: pointer;
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18);
-          transition: background-color 200ms ease, box-shadow 200ms ease;
+          box-shadow: 0 24px 50px rgba(0, 0, 0, 0.12);
+          transition: background-color 200ms ease, box-shadow 200ms ease, color 200ms ease;
         }
 
         .chat-toggle:hover {
-          background: rgba(255, 255, 255, 0.14);
-          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.24);
+          background: rgba(255, 255, 255, 0.45);
+          box-shadow: 0 30px 60px rgba(16, 42, 67, 0.18);
         }
 
         .chat-left {
@@ -384,8 +384,10 @@ class BmcChatbotWidget extends HTMLElement {
 
         .chat-toggle.open {
           background: rgba(255, 255, 255, 0.14);
+          color: #ffffff; /* White text when open to contrast with dark body */
           border-bottom-left-radius: 0;
           border-bottom-right-radius: 0;
+          border-color: rgba(255, 255, 255, 0.08);
         }
 
         .chat-toggle.open .chat-arrow {
@@ -410,7 +412,7 @@ class BmcChatbotWidget extends HTMLElement {
 
         .chat-body.open {
           transform: scaleY(1);
-          max-height: 520px;
+          max-height: 600px;
         }
 
         .chat-messages {
@@ -418,19 +420,10 @@ class BmcChatbotWidget extends HTMLElement {
           display: flex;
           flex-direction: column;
           gap: 14px;
-          height: 340px;
+          height: 420px;
           overflow-y: auto;
           scrollbar-width: thin;
           scrollbar-color: rgba(255,255,255,0.1) transparent;
-        }
-
-        .chat-messages::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-          background-color: rgba(255,255,255,0.1);
-          border-radius: 99px;
         }
 
         /* Markdown Table Styles */
@@ -485,6 +478,15 @@ class BmcChatbotWidget extends HTMLElement {
           height: 1px;
           background: rgba(255, 255, 255, 0.1);
           margin: 12px 0;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+          background-color: rgba(255,255,255,0.1);
+          border-radius: 99px;
         }
 
         .message {
@@ -600,7 +602,7 @@ class BmcChatbotWidget extends HTMLElement {
         }
 
         .chat-form input:focus {
-          border-color: #f5851f;
+          border-color: #ffc080;
           background: rgba(255, 255, 255, 0.09);
         }
 
@@ -612,7 +614,7 @@ class BmcChatbotWidget extends HTMLElement {
           border: none;
           padding: 0 18px;
           border-radius: 16px;
-          background: #f5851f;
+          background: #ffc080;
           color: #0c1c2c;
           font-weight: 700;
           cursor: pointer;
@@ -620,7 +622,7 @@ class BmcChatbotWidget extends HTMLElement {
         }
 
         .chat-form button:hover {
-          background: #e07210;
+          background: #ffd8b3;
           transform: scale(1.02);
         }
 
@@ -641,7 +643,7 @@ class BmcChatbotWidget extends HTMLElement {
         <div class="chat-body" id="chatBody">
           <div class="chat-messages" id="chatMessages">
             <div class="message bot">
-              <p>Hi there! Ask me any questions regarding the Control-M automation!</p>
+              <p>Hi there! I am your Control-M automation agent. Type <strong>hello</strong> or <strong>help</strong> to begin.</p>
             </div>
           </div>
           
