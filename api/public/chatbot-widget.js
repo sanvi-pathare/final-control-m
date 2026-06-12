@@ -248,7 +248,7 @@ class BmcChatbotWidget extends HTMLElement {
       let l = line;
       if (!l.startsWith('<div') && !l.startsWith('<table')) {
         l = l.replace(
-          /(https?:\/\/[^\s<]+)/g,
+          /(https?:\/\/[^\s<]+?)(?=[.,;?!)]?(?:\s|$|<))/g,
           '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #ffc080; text-decoration: underline;">$1</a>'
         );
       }
@@ -260,7 +260,7 @@ class BmcChatbotWidget extends HTMLElement {
           inList = false;
           suffix = '</ul>';
         }
-        return suffix + line;
+        return suffix + l;
       }
 
       if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
@@ -285,7 +285,7 @@ class BmcChatbotWidget extends HTMLElement {
           inList = false;
           suffix = '</ul>';
         }
-        return suffix + (trimmed ? `<p>${line}</p>` : '<br>');
+        return suffix + (trimmed ? `<p>${l}</p>` : '<br>');
       }
     });
 
